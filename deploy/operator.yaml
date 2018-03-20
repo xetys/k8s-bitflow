@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bitflow-operator
+  labels:
+    app: bitflow-operator
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: bitflow-operator
+  template:
+    metadata:
+      labels:
+        app: bitflow-operator
+    spec:
+      serviceAccountName: bitflow
+      containers:
+      - name: bitflow-operator
+        image: xetys/k8s-bitflow-operator
