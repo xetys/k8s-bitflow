@@ -49,7 +49,7 @@ func (svc *BitflowService) CreateBitflowPod(nodeName string) (*v1.Pod, error) {
 					Name: "bitflow",
 					Image: "antongulenko/bitflow-collector",
 					Command: []string{
-						"bitflow-collector",
+						"./bitflow-collector",
 						"-ci",
 						"500ms",
 						"-api",

@@ -2,7 +2,6 @@ apiVersion: rbac.authorization.k8s.io/v1beta1
 kind: ClusterRoleBinding
 metadata:
   name: bitflow
-  namespace: default
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
@@ -16,7 +15,6 @@ kind: ClusterRole
 apiVersion: rbac.authorization.k8s.io/v1beta1
 metadata:
   name: bitflow
-  namespace: default
 rules:
   - apiGroups:
       - '*'
@@ -39,4 +37,3 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: bitflow
-  namespace: default
