@@ -46,8 +46,9 @@ func (svc *BitflowService) CreateBitflowPod(nodeName string) (*v1.Pod, error) {
 			},
 			Containers: []v1.Container{
 				{
-					Name:  "bitflow",
-					Image: "xetys/bitflow-collector",
+					Name:            "bitflow",
+					Image:           "xetys/bitflow-collector",
+					ImagePullPolicy: v1.PullAlways,
 					Command: []string{
 						"./bitflow-collector",
 						"-ci",
