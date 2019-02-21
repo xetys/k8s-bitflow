@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	v12 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 )
@@ -32,6 +33,9 @@ func (svc *BitflowService) CreateBitflowPod(nodeName string) (*v1.Pod, error) {
 	pod := &v1.Pod{
 		ObjectMeta: v12.ObjectMeta{
 			Name: podName,
+			Labels: map[string]string{
+				"collector-name": podName,
+			},
 		},
 		Spec: v1.PodSpec{
 			HostNetwork:        true,
@@ -76,6 +80,31 @@ func (svc *BitflowService) CreateBitflowPod(nodeName string) (*v1.Pod, error) {
 
 	pod, err := svc.clientset.CoreV1().Pods(v1.NamespaceDefault).Create(pod)
 
+	if err != nil {
+		return nil, err
+	}
+
+	service := &v1.Service{
+		ObjectMeta: metav1.ObjectMeta{
+			Name: podName,
+			Labels: map[string]string{
+				"bitflow-component": "collector",
+			},
+		},
+		Spec: v1.ServiceSpec{
+			Selector: map[string]string{
+				"collector-name": podName,
+			},
+			Ports: []v1.ServicePort{
+				{
+					Name: "prometheus",
+					Port: 5090,
+				},
+			},
+		},
+	}
+
+	service, err = svc.clientset.CoreV1().Services(v1.NamespaceDefault).Create(service)
 	if err != nil {
 		return nil, err
 	}
