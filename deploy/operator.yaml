@@ -18,4 +18,3 @@ spec:
       containers:
       - name: bitflow-operator
         image: xetys/k8s-bitflow-operator:v0.4
-1
