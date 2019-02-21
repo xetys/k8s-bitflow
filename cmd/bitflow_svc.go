@@ -1,16 +1,16 @@
 package cmd
 
 import (
-	"k8s.io/client-go/kubernetes"
 	"k8s.io/api/core/v1"
 	v12 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/client-go/kubernetes"
 )
 
 type BitflowService struct {
 	clientset *kubernetes.Clientset
 }
 
-func (svc *BitflowService) Client() *kubernetes.Clientset  {
+func (svc *BitflowService) Client() *kubernetes.Clientset {
 	return svc.clientset
 }
 
@@ -39,15 +39,15 @@ func (svc *BitflowService) CreateBitflowPod(nodeName string) (*v1.Pod, error) {
 			ServiceAccountName: "bitflow",
 			Tolerations: []v1.Toleration{
 				{
-					Effect: v1.TaintEffectNoSchedule,
-					Key: "node-role.kubernetes.io/master",
+					Effect:   v1.TaintEffectNoSchedule,
+					Key:      "node-role.kubernetes.io/master",
 					Operator: v1.TolerationOpExists,
 				},
 			},
 			Containers: []v1.Container{
 				{
-					Name: "bitflow",
-					Image: "antongulenko/bitflow-collector",
+					Name:  "bitflow",
+					Image: "xetys/bitflow-collector",
 					Command: []string{
 						"./bitflow-collector",
 						"-ci",
@@ -56,9 +56,13 @@ func (svc *BitflowService) CreateBitflowPod(nodeName string) (*v1.Pod, error) {
 						":7777",
 						"-o",
 						":5010",
+						"-o",
+						"http+prometheus://:5090",
 					},
 					Ports: []v1.ContainerPort{
 						{Name: "web", ContainerPort: 7777},
+						{Name: "tcp", ContainerPort: 5010},
+						{Name: "prometheus", ContainerPort: 5090},
 					},
 					SecurityContext: &v1.SecurityContext{
 						Privileged: &tr,
