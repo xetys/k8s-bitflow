@@ -83,7 +83,17 @@ func (svc *BitflowService) CreateBitflowPod(nodeName string) (*v1.Pod, error) {
 		},
 	}
 
-	pod, err := svc.clientset.CoreV1().Pods(v1.NamespaceDefault).Create(pod)
+	// check if pod already exists
+	oldPod, err := svc.GetBitflowSvcForNode(nodeName)
+	if err != nil {
+		return nil, err
+	}
+
+	if oldPod != nil {
+		_ = svc.clientset.CoreV1().Pods(v1.NamespaceDefault).Delete(oldPod.Name, &v12.DeleteOptions{})
+	}
+
+	pod, err = svc.clientset.CoreV1().Pods(v1.NamespaceDefault).Create(pod)
 
 	if err != nil {
 		return nil, err
@@ -107,6 +117,17 @@ func (svc *BitflowService) CreateBitflowPod(nodeName string) (*v1.Pod, error) {
 				},
 			},
 		},
+	}
+
+	// check if svc already exists
+	oldSvc, err := svc.GetBitflowSvcForNode(nodeName)
+
+	if err != nil {
+		return nil, err
+	}
+
+	if oldSvc != nil {
+		_ = svc.clientset.CoreV1().Services(v1.NamespaceDefault).Delete(oldSvc.Name, &v12.DeleteOptions{})
 	}
 
 	service, err = svc.clientset.CoreV1().Services(v1.NamespaceDefault).Create(service)
