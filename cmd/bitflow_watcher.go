@@ -9,13 +9,15 @@ import (
 )
 
 type BitflowWatcher struct {
-	svc *BitflowService
-	pods      []*v1.Pod
+	svc     *BitflowService
+	updater *Updater
+	pods    []*v1.Pod
 }
 
-func NewBitflowWatcher(svc *BitflowService) *BitflowWatcher {
+func NewBitflowWatcher(svc *BitflowService, updater *Updater) *BitflowWatcher {
 	return &BitflowWatcher{
-		svc: svc,
+		svc:     svc,
+		updater: updater,
 	}
 }
 
@@ -71,7 +73,7 @@ func (watcher *BitflowWatcher) SyncPods() error {
 		nodePod, err := watcher.svc.GetBitflowPodForNode(node.Name)
 
 		if err != nil {
-			if strings.Contains(err.Error(), "not found"){
+			if strings.Contains(err.Error(), "not found") {
 				nodePod, err = watcher.svc.CreateBitflowPod(node.Name)
 
 				if err != nil {
@@ -80,6 +82,7 @@ func (watcher *BitflowWatcher) SyncPods() error {
 
 				log.Printf("created pod %s", nodePod.Name)
 				watcher.pods = append(watcher.pods, nodePod)
+				watcher.updater.ScheduleBitflowUpdate()
 			} else {
 				return err
 			}
@@ -108,8 +111,17 @@ func (watcher *BitflowWatcher) DeletePods() error {
 			}
 			log.Printf("pod %s deleted", nodePod.Name)
 		}
+
+		nodeSvc, err := watcher.svc.GetBitflowSvcForNode(node.Name)
+
+		if err != nil {
+			err = watcher.svc.Client().CoreV1().Services(nodeSvc.Namespace).Delete(nodeSvc.Name, &v12.DeleteOptions{})
+			if err != nil {
+				return err
+			}
+			log.Printf("svc %s deleted", nodeSvc.Name)
+		}
 	}
 
 	return nil
 }
-

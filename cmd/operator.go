@@ -18,14 +18,14 @@ import (
 	"fmt"
 
 	"github.com/spf13/cobra"
+	"k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/fields"
+	"k8s.io/client-go/tools/cache"
+	"k8s.io/client-go/util/workqueue"
 	"log"
 	"os"
 	"os/signal"
 	"syscall"
-	"k8s.io/apimachinery/pkg/fields"
-	"k8s.io/client-go/tools/cache"
-	"k8s.io/client-go/util/workqueue"
-	"k8s.io/api/core/v1"
 	"time"
 )
 
@@ -45,7 +45,7 @@ var operatorCmd = &cobra.Command{
 
 		svc := NewBitflowService(clientset)
 		updater := NewUpdater(svc)
-		watcher := NewBitflowWatcher(svc)
+		watcher := NewBitflowWatcher(svc, updater)
 
 		// This goroutine executes a blocking receive for
 		// signals. When it gets one it'll print it out

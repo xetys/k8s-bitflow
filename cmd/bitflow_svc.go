@@ -25,6 +25,11 @@ func (svc *BitflowService) GetBitflowPodForNode(nodeName string) (*v1.Pod, error
 	return svc.clientset.CoreV1().Pods(v1.NamespaceDefault).Get(podName, v12.GetOptions{})
 }
 
+func (svc *BitflowService) GetBitflowSvcForNode(nodeName string) (*v1.Service, error) {
+	podName := "bitflow-" + nodeName
+	return svc.clientset.CoreV1().Services(v1.NamespaceDefault).Get(podName, v12.GetOptions{})
+}
+
 func (svc *BitflowService) CreateBitflowPod(nodeName string) (*v1.Pod, error) {
 	podName := "bitflow-" + nodeName
 	selector := make(map[string]string)
