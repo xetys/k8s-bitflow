@@ -1,0 +1,19 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  labels:
+    bitflow-component: collector
+  name: prometheus
+  namespace: default
+spec:
+
+  endpoints:
+  - interval: 10s
+    port: prometheus
+    path: /
+  namespaceSelector:
+    matchNames:
+    - default
+  selector:
+    matchLabels:
+      bitflow-component: collector

@@ -1,0 +1,17 @@
+apiVersion: monitoring.coreos.com/v1
+kind: Prometheus
+metadata:
+  labels:
+    prometheus: bitflow
+  name: bitflow
+spec:
+  replicas: 2
+  resources:
+    requests:
+      memory: 400Mi
+  serviceAccountName: prometheus-bitflow
+  serviceMonitorSelector:
+    matchExpressions:
+    - key: bitflow-component
+      operator: Exists
+  version: v2.2.1
