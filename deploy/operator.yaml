@@ -17,4 +17,4 @@ spec:
       serviceAccountName: bitflow
       containers:
       - name: bitflow-operator
-        image: xetys/k8s-bitflow-operator:v0.5
+        image: xetys/k8s-bitflow-operator:v0.6
