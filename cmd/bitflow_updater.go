@@ -1,22 +1,22 @@
 package cmd
 
 import (
-	"math/rand"
-	"time"
-	"k8s.io/client-go/tools/remotecommand"
-	"io"
-	"strings"
 	"bytes"
-	"k8s.io/apimachinery/pkg/apis/meta/v1"
-	"log"
+	"io"
 	v12 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes/scheme"
+	"k8s.io/client-go/tools/remotecommand"
+	"log"
+	"math/rand"
+	"strings"
+	"time"
 )
 
 type Updater struct {
 	svc       *BitflowService
 	timeoutId int
-	working bool
+	working   bool
 }
 
 func NewUpdater(svc *BitflowService) *Updater {
@@ -74,9 +74,14 @@ func (updater *Updater) updateBitflowMetrics() error {
 	log.Println("setup new procs")
 	for _, pod := range podList.Items {
 		podName := pod.Name
-		containerId := pod.Status.ContainerStatuses[0].ContainerID[9:]
+		containerStatus := pod.Status.ContainerStatuses[0]
+		containerSlice := containerStatus.ContainerID
+		if len(containerSlice) < 10 {
+			continue
+		}
+		containerId := containerSlice[9:]
 
-		err = updater.runOnNode(pod.Spec.NodeName, "api/proc-children/" + podName + "?regex=" + containerId, "POST")
+		err = updater.runOnNode(pod.Spec.NodeName, "api/proc-children/"+podName+"?regex="+containerId, "POST")
 		if err != nil {
 			updater.working = false
 			return err
@@ -106,9 +111,9 @@ func (updater *Updater) runOnNode(nodeName string, url string, method string) er
 
 	execRequest.VersionedParams(&v12.PodExecOptions{
 		Container: "bitflow",
-		Command: strings.Split(command, " "),
-		Stderr: true,
-		Stdout: true,
+		Command:   strings.Split(command, " "),
+		Stderr:    true,
+		Stdout:    true,
 	}, scheme.ParameterCodec)
 
 	config, err := K8SConfig()

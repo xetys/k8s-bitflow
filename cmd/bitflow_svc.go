@@ -5,6 +5,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	v12 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
+	"strings"
 )
 
 type BitflowService struct {
@@ -84,8 +85,8 @@ func (svc *BitflowService) CreateBitflowPod(nodeName string) (*v1.Pod, error) {
 	}
 
 	// check if pod already exists
-	oldPod, err := svc.GetBitflowSvcForNode(nodeName)
-	if err != nil {
+	oldPod, err := svc.GetBitflowPodForNode(nodeName)
+	if err != nil && !strings.Contains(err.Error(), "not found") {
 		return nil, err
 	}
 
@@ -122,7 +123,7 @@ func (svc *BitflowService) CreateBitflowPod(nodeName string) (*v1.Pod, error) {
 	// check if svc already exists
 	oldSvc, err := svc.GetBitflowSvcForNode(nodeName)
 
-	if err != nil {
+	if err != nil && !strings.Contains(err.Error(), "not found") {
 		return nil, err
 	}
 
