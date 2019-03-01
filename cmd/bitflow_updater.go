@@ -71,12 +71,13 @@ func (updater *Updater) updateBitflowMetrics() error {
 		return err
 	}
 
-	log.Println("setup new procs")
+	log.Printf("setup %d new procs\n", len(podList.Items))
 	for _, pod := range podList.Items {
 		podName := pod.Name
 		containerStatus := pod.Status.ContainerStatuses[0]
 		containerSlice := containerStatus.ContainerID
 		if len(containerSlice) < 10 {
+			log.Printf("cloud not read container id from %s, skipping\n", containerSlice)
 			continue
 		}
 		containerId := containerSlice[9:]
